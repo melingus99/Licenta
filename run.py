@@ -1,5 +1,4 @@
 import asyncio
-import json
 from copy import deepcopy
 
 from environs import Env
@@ -16,8 +15,9 @@ from showdown.websocket_client import PSWebsocketClient
 from data import all_move_json
 from data import pokedex
 from data.mods.apply_mods import apply_mods
+from showdown.battle_bots.RL_agent.Config.config import *
 
-
+from showdown.battle_bots.RL_agent.train import train
 logger = logging.getLogger(__name__)
 
 
@@ -100,6 +100,10 @@ async def showdown():
         logger.info("W: {}\tL: {}".format(wins, losses))
 
         check_dictionaries_are_unmodified(original_pokedex, original_move_json)
+
+        # if register_data==True:
+        #     train()
+        #     print('train completed')
 
         battles_run += 1
         if battles_run >= config.run_count:

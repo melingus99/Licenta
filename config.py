@@ -3,13 +3,13 @@ import logging
 
 battle_bot_module = None
 websocket_uri = None
-username = None
-password = None
-bot_mode = None
+username = 'melingus99'
+password = 'melingus99'
+bot_mode = "CHALLENGE_USER"
 team_name = None
-pokemon_mode = None
+pokemon_mode = "ou"
 run_count = None
-user_to_challenge = None
+user_to_challenge = "melingus"
 gambit_exe_path = ""
 greeting_message = 'hf'
 battle_ending_message = 'gg'

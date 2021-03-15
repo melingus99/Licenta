@@ -27,7 +27,7 @@ def pick_safest_move_from_battles(battles):
         mutator = StateMutator(state)
         user_options, opponent_options = b.get_all_options()
         logger.debug("Searching through the state: {}".format(mutator.state))
-        scores = get_payoff_matrix(mutator, user_options, opponent_options, depth=2, prune=True)
+        scores = get_payoff_matrix(mutator, user_options, opponent_options, depth=3, prune=True)
 
         prefixed_scores = prefix_opponent_move(scores, str(i))
         all_scores = {**all_scores, **prefixed_scores}
@@ -45,4 +45,5 @@ class BattleBot(Battle):
     def find_best_move(self):
         battles = self.prepare_battles(join_moves_together=True)
         safest_move = pick_safest_move_from_battles(battles)
+        print(safest_move)
         return format_decision(self, safest_move)

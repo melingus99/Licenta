@@ -130,5 +130,4 @@ def get_payoff_matrix(mutator, user_options, opponent_options, depth=2, prune=Tr
 
         if worst_score_for_this_row > best_score:
             best_score = worst_score_for_this_row
-
     return state_scores

@@ -102,3 +102,6 @@ def get_pokemon_information(smogon_stats_url):
                             pokemon_information[pokemon_name][ABILITY_STRING].append((ability, percentage))
 
     return pokemon_information
+
+
+

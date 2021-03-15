@@ -146,7 +146,7 @@ async def start_battle(ps_websocket_client, pokemon_battle_type):
     else:
         battle = await start_standard_battle(ps_websocket_client, pokemon_battle_type)
 
-    await ps_websocket_client.send_message(battle.battle_tag, [config.greeting_message])
+    await ps_websocket_client.send_message(battle.battle_tag, [config.greeting_message]) # TODO: change greeting message
     await ps_websocket_client.send_message(battle.battle_tag, ['/timer on'])
 
     return battle

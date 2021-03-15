@@ -13,6 +13,7 @@ from showdown.helpers import get_pokemon_info_from_condition
 from showdown.helpers import calculate_stats
 from showdown.engine.find_state_instructions import get_effective_speed
 from showdown.engine.damage_calculator import calculate_damage
+from showdown.battle_bots.RL_agent.Config.config import register_data
 
 
 logger = logging.getLogger(__name__)
@@ -659,6 +660,7 @@ def get_damage_dealt(battle, split_msg, next_messages):
             damage_dealt = (defending_side.active.hp / defending_side.active.max_hp)*maxhp - final_health
             damage_percentage = round(damage_dealt / maxhp, 4)
 
+
             logger.debug("{} did {}% damage to {} with {}".format(attacking_side.active.name, damage_percentage * 100, defending_side.active.name, move_name))
             return DamageDealt(attacker=attacking_side.active.name, defender=defending_side.active.name, move=move_name, percent_damage=damage_percentage, crit=critical_hit)
 
@@ -721,6 +723,7 @@ def update_battle(battle, msg):
     msg_lines = msg.split('\n')
 
     action = None
+    reward=0
     for i, line in enumerate(msg_lines):
         split_msg = line.split('|')
         if len(split_msg) < 2:
@@ -768,14 +771,39 @@ def update_battle(battle, msg):
         if function_to_call is not None:
             function_to_call(battle, split_msg)
 
+        if action =='move' and not is_opponent(battle,split_msg):
+            state=battle.user.active.name+battle.opponent.active.name
+            damage_dealt = get_damage_dealt(battle, split_msg, msg_lines[i + 1:])
+            if damage_dealt is not None:
+                reward=reward+(damage_dealt.percent_damage*100)
+
         if action == 'move' and is_opponent(battle, split_msg):
             check_choicescarf(battle, msg_lines)
             damage_dealt = get_damage_dealt(battle, split_msg, msg_lines[i + 1:])
+            if damage_dealt is not None:
+                reward=reward-(damage_dealt.percent_damage*100)
             if damage_dealt:
                 check_choice_band_or_specs(battle, damage_dealt)
 
+        if register_data==True and action=='move' and damage_dealt is not None and not is_opponent(battle,split_msg):
+            f=open('C:\\Users\\Bubu\\Licenta\\showdown\\battle_bots\\RL_agent\\Config\\training_set.txt','a')
+            f.write(state+','+damage_dealt.move+',')
+            f.close()
+
+        if register_data==True and action=='switch' and not is_opponent(battle,split_msg):
+            state=battle.user.active.name+battle.opponent.active.name
+            f=open('C:\\Users\\Bubu\\Licenta\\showdown\\battle_bots\\RL_agent\\Config\\training_set.txt','a')
+            f.write(state+','+'switch '+battle.user.active.name+',')
+            f.close()
+
         if action == 'turn':
+            if register_data==True and split_msg[2]!='1':
+                f=open('C:\\Users\\Bubu\\Licenta\\showdown\\battle_bots\\RL_agent\\Config\\training_set.txt','a')
+                f.write(str(reward)+'\n')
+                f.close()
             return True
+
+
 
     if action in ['inactive', 'updatesearch']:
         return False
