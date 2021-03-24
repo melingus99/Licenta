@@ -724,13 +724,17 @@ def update_battle(battle, msg):
 
     action = None
     reward=0
+    nr_moves=0
     for i, line in enumerate(msg_lines):
         split_msg = line.split('|')
         if len(split_msg) < 2:
             continue
 
         action = split_msg[1].strip()
-
+        if action=='move':
+            nr_moves+=1
+        damage_dealt=None
+        state=None
         battle_modifiers_lookup = {
             'request': request,
             'switch': switch_or_drag,
@@ -778,6 +782,7 @@ def update_battle(battle, msg):
                 reward=reward+(damage_dealt.percent_damage*100)
 
         if action == 'move' and is_opponent(battle, split_msg):
+            state=battle.user.active.name+battle.opponent.active.name
             check_choicescarf(battle, msg_lines)
             damage_dealt = get_damage_dealt(battle, split_msg, msg_lines[i + 1:])
             if damage_dealt is not None:
@@ -785,23 +790,12 @@ def update_battle(battle, msg):
             if damage_dealt:
                 check_choice_band_or_specs(battle, damage_dealt)
 
-        if register_data==True and action=='move' and damage_dealt is not None and not is_opponent(battle,split_msg):
-            f=open('C:\\Users\\Bubu\\Licenta\\showdown\\battle_bots\\RL_agent\\Config\\training_set.txt','a')
-            f.write(state+','+damage_dealt.move+',')
-            f.close()
-
-        if register_data==True and action=='switch' and not is_opponent(battle,split_msg):
-            state=battle.user.active.name+battle.opponent.active.name
-            f=open('C:\\Users\\Bubu\\Licenta\\showdown\\battle_bots\\RL_agent\\Config\\training_set.txt','a')
-            f.write(state+','+'switch '+battle.user.active.name+',')
-            f.close()
-
+        if register_data==True:
+            write_rewards(action,battle,state,split_msg,reward,damage_dealt,nr_moves)
         if action == 'turn':
-            if register_data==True and split_msg[2]!='1':
-                f=open('C:\\Users\\Bubu\\Licenta\\showdown\\battle_bots\\RL_agent\\Config\\training_set.txt','a')
-                f.write(str(reward)+'\n')
-                f.close()
             return True
+
+
 
 
 
@@ -814,3 +808,51 @@ def update_battle(battle, msg):
 
 async def async_update_battle(battle, msg):
     return update_battle(battle, msg)
+
+def write_rewards(action,battle,state,split_msg,reward,damage_dealt,nr_moves):
+    try:
+        if action=='move' and not is_opponent(battle,split_msg):
+            if damage_dealt is None:
+                move_name = normalize_name(split_msg[3])
+            else:
+                move_name=damage_dealt.move
+            f=open('C:\\Users\\Bubu\\Licenta\\showdown\\battle_bots\\RL_agent\\Config\\training_set.txt','a')
+            f.write(state+','+move_name+',')
+            f.close()
+
+        elif action=='faint' and not is_opponent(battle,split_msg) and nr_moves<2:
+            reward-=100
+            state=battle.user.active.name+battle.opponent.active.name
+            f=open('C:\\Users\\Bubu\\Licenta\\showdown\\battle_bots\\RL_agent\\Config\\training_set.txt','a')
+            f.write(state+','+'faint '+battle.user.active.name+ ','+str(reward)+ '\n')
+            f.close()
+
+        elif action=='faint' and not is_opponent(battle,split_msg) and nr_moves==2:
+            reward-=100
+            f=open('C:\\Users\\Bubu\\Licenta\\showdown\\battle_bots\\RL_agent\\Config\\training_set.txt','a')
+            f.write(str(reward)+'\n')
+            f.close()
+
+        elif action=='faint' and is_opponent(battle,split_msg):
+            reward+=100
+            f=open('C:\\Users\\Bubu\\Licenta\\showdown\\battle_bots\\RL_agent\\Config\\training_set.txt','a')
+            f.write(str(reward)+'\n')
+            f.close()
+
+        elif action=='switch' and not is_opponent(battle,split_msg):
+            state=battle.user.active.name+battle.opponent.active.name
+            f=open('C:\\Users\\Bubu\\Licenta\\showdown\\battle_bots\\RL_agent\\Config\\training_set.txt','a')
+            f.write(state+','+'switch '+battle.user.active.name+',')
+            f.close()
+
+        elif action == 'turn':
+            if split_msg[2]!='1':
+                f=open('C:\\Users\\Bubu\\Licenta\\showdown\\battle_bots\\RL_agent\\Config\\training_set.txt','a')
+                f.write(str(reward)+'\n')
+                f.close()
+            if split_msg[2]=='1':
+                f=open('C:\\Users\\Bubu\\Licenta\\showdown\\battle_bots\\RL_agent\\Config\\training_set.txt','a')
+                f.write('nan'+', \n')
+                f.close()
+    except Exception as e:
+        print(e)

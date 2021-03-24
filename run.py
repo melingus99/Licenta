@@ -15,9 +15,8 @@ from showdown.websocket_client import PSWebsocketClient
 from data import all_move_json
 from data import pokedex
 from data.mods.apply_mods import apply_mods
-from showdown.battle_bots.RL_agent.Config.config import *
+#from showdown.battle_bots.RL_agent.Config.config import *
 
-from showdown.battle_bots.RL_agent.train import train
 logger = logging.getLogger(__name__)
 
 

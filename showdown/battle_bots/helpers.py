@@ -29,3 +29,4 @@ def format_decision(battle, decision):
             message = "{} {}".format(message, constants.ZMOVE)
 
     return [message, str(battle.rqid)]
+

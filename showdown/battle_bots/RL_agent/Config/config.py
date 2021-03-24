@@ -1,4 +1,4 @@
-from data.parse_smogon_stats import get_pokemon_information,get_smogon_stats_file_name
+# from data.parse_smogon_stats import get_pokemon_information,get_smogon_stats_file_name
 import json
 # pokemon_info=get_pokemon_information(get_smogon_stats_file_name("gen7ou"))
 # pokemon_info_half={}
@@ -29,7 +29,7 @@ import json
 #         Q[str(i)+str(j)]={}
 #         for k in actions:
 #            Q[str(i)+str(j)][k]=0
-
+#
 # with open('Q.json',"w") as Q_file:
 #     json.dump(Q,Q_file)
 
@@ -39,5 +39,5 @@ with open('C:\\Users\\Bubu\\Licenta\\showdown\\battle_bots\\RL_agent\\Config\\Q.
 Q_file.close()
 alpha=0.1
 gamma=0.8
-epsilon=-1
+epsilon=0.7
 register_data=True

@@ -210,3 +210,4 @@ def calculate_stats(base_stats, level, ivs=(31,) * 6, evs=(85,) * 6, nature='ser
     new_stats = update_stats_from_nature(new_stats, nature)
     new_stats = {k: int(v) for k, v in new_stats.items()}
     return new_stats
+
