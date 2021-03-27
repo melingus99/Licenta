@@ -39,5 +39,5 @@ with open('C:\\Users\\Bubu\\Licenta\\showdown\\battle_bots\\RL_agent\\Config\\Q.
 Q_file.close()
 alpha=0.1
 gamma=0.8
-epsilon=0.7
+epsilon=0.3
 register_data=True

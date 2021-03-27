@@ -20,10 +20,10 @@ Magearna @ Assault Vest
 Ability: Soul-Heart
 EVs: 248 HP / 224 SpD / 36 Spe
 Sassy Nature
-IVs: 1 Atk
+IVs: 0 Atk
 - Volt Switch
 - Fleur Cannon
-- Hidden Power [Fire]
+- Flash Cannon
 - Ice Beam
 
 Landorus-Therian @ Leftovers
@@ -48,8 +48,8 @@ Zapdos @ Rocky Helmet
 Ability: Pressure
 EVs: 248 HP / 188 Def / 72 Spe
 Timid Nature
+IVs: 0 Atk
 - Discharge
-- Hidden Power [Ice]
+- Toxic
 - Heat Wave
 - Roost
-

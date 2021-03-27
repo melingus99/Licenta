@@ -2,7 +2,7 @@ from showdown.battle import Battle
 from showdown.engine.select_best_move import *
 from showdown.battle_bots.helpers import format_decision
 from showdown.engine import StateMutator
-
+from showdown.battle_bots.MinMax_Classic.config import depth
 class BattleBot(Battle):
     def __init__(self, *args, **kwargs):
         super(BattleBot, self).__init__(*args, **kwargs)
@@ -10,7 +10,7 @@ class BattleBot(Battle):
     def find_best_move(self):
         battles=self.prepare_battles(join_moves_together=True)
         max_move_glob_score=-math.inf
-        depth=1
+
         for battle in battles:
             max_score=-math.inf
             state = battle.create_state()

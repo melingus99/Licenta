@@ -51,4 +51,12 @@ def train():
     f.close()
 
 train()
-#50 matches trained upon
+#50 matches trained upon minimax agent
+#10 matches trained with epsilon 0.7
+#10 matches trained with epsilon 0.6
+#10 matches trained with epsilon 0.5
+#10 matches trained with epsilon 0.4
+#10 matches trained with epsilon 0.3
+#planning:
+#         -10 games with epsilon 0.7,10 with epsilon 0.6 and so on until 10 with epsilon 0.3
+#

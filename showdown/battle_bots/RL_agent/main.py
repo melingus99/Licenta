@@ -1,5 +1,4 @@
 from showdown.battle import Battle
-import math
 from showdown.engine.select_best_move import *
 from showdown.battle_bots.helpers import format_decision
 from showdown.battle_bots.RL_agent.Config.config import *
@@ -50,9 +49,9 @@ class BattleBot(Battle):
         except:
             max_choice=user_options[rand.randint(0,len(user_options)-1)]
 
-        if register_data==True:
-            f=open('C:\\Users\\Bubu\\Licenta\\showdown\\battle_bots\\RL_agent\\Config\\training_set.txt','a')
-            f.write(state_chosen+','+str(action_chosen)+','+str(max_score_glob)+'\n')
-            f.close()
+        # if register_data==True:
+        #     f=open('C:\\Users\\Bubu\\Licenta\\showdown\\battle_bots\\RL_agent\\Config\\training_set.txt','a')
+        #     f.write(state_chosen+','+str(action_chosen)+','+str(max_score_glob)+'\n')
+        #     f.close()
 
         return format_decision(self,max_choice)
