@@ -1,2 +1,2 @@
-This is my undergraduate project, the baseflow is taken from https://github.com/pmariglia/showdown so be sure to go there for more informations on how to use the application properly.
-Most of my work will be done on the Bots side
+This is my undergraduate project, this is developed on top of pmariglia project (https://github.com/pmariglia/showdown). Check their project for more information on how the environment works, the requirements and the whole baseflow of the application.
+Most of my work is in the bots folder, particularly, the MinMax agent, RL agent and MCTS agent. Other changes are found in the battle_modifier.py so that the reward for the Q-learning agent can be written as accurately as possible.
