@@ -7,12 +7,13 @@ from showdown.engine.select_best_move import *
 from showdown.battle_bots.helpers import format_decision
 from copy import deepcopy
 class Node:
-    def __init__(self,value=None,node_id=None,mutator=None,parent_move=None):
+    def __init__(self,value=None,node_id=None,mutator=None,parent_move=None,battle=None):
         self.value=value
         self.children=[]
         self.id=node_id
         self.mutator=mutator
         self.parent_move=parent_move
+        self.battle=battle
 
     def __str__(self):
         return "node@" + str(self.id)
@@ -23,15 +24,37 @@ class Node:
         return False
 
     def expand_children(self):
-        user_options,opponent_options=self.mutator.state.get_all_options()
+        if self.parent_move==None:
+            user_options,opponent_options=self.battle.get_all_options()
+        else:
+            user_options,opponent_options=self.mutator.state.get_all_options()
+        max_score=-math.inf
+        user_best_move=None
         for i, user_move in enumerate(user_options[:]):
+            min_score=math.inf
+            opponent_best_move=None
             for j, opponent_move in enumerate(opponent_options[:]):
                 state_instructions = get_all_state_instructions(self.mutator, user_move, opponent_move)
+                score=0
                 for instructions in state_instructions:
                     self.mutator.apply(instructions.instructions)
-                    score = evaluate(self.mutator.state) * instructions.percentage
-                    self.children.append(Node(value=score,mutator=deepcopy(self.mutator),parent_move=user_move))
+                    t_score = evaluate(self.mutator.state) * instructions.percentage
+                    score+=t_score#TODO: change to a arithmetic median
+                    #self.children.append(Node(value=score,mutator=deepcopy(self.mutator),parent_move=user_move))
                     self.mutator.reverse(instructions.instructions)
+                if score<=min_score:
+                    min_score=score
+                    opponent_best_move=opponent_move
+            if min_score>=max_score:
+                max_score=min_score
+                user_best_move=user_move
+        state_instructions=get_all_state_instructions(self.mutator,user_best_move,opponent_best_move)
+        for instructions in state_instructions:
+            self.mutator.apply(instructions.instructions)
+            t_score = evaluate(self.mutator.state) * instructions.percentage
+            self.children.append(Node(value=t_score,mutator=deepcopy(self.mutator),parent_move=user_best_move))
+            self.mutator.reverse(instructions.instructions)
+
 
     def get_children(self):
         return self.children

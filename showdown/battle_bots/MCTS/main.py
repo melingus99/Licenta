@@ -21,7 +21,7 @@ class BattleBot(Battle):
             new_root = mcts_tree.choose_succesor()
             if best_root==None:
                 best_root=new_root
-            elif new_root.reward()>best_root.reward():
+            elif new_root.reward()<best_root.reward():
                 best_root=new_root
         return format_decision(self,best_root.parent_move)
 
@@ -33,7 +33,7 @@ class BattleBot(Battle):
         for battle in battles:
             state = battle.create_state()
             mutator = StateMutator(state)
-            root_list.append(Node(value=evaluate(mutator.state),mutator=deepcopy(mutator)))
+            root_list.append(Node(value=evaluate(mutator.state),mutator=deepcopy(mutator),battle=deepcopy(battle)))
         return root_list
 
 

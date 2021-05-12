@@ -1,3 +1,3 @@
-num_rollout=60
-num_runs=60
+num_rollout=400
+num_runs=800
 exploration_weight=0.8

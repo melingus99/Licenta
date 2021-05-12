@@ -11,8 +11,6 @@ class BattleBot(Battle):
 
     def find_best_move(self):
         battles=self.prepare_battles(join_moves_together=True)
-        state_chosen=''
-        action_chosen=''
         max_score_glob=-math.inf
         try:
             #exploration
@@ -26,8 +24,6 @@ class BattleBot(Battle):
                 choice=actions[rand.randint(0,len(actions)-1)]
                 max_score_glob=Q[state][choice]
                 max_choice=choice
-                state_chosen=state
-                action_chosen=max_choice
     
             #greedy
             else:
@@ -44,14 +40,8 @@ class BattleBot(Battle):
                     if max_score>max_score_glob:
                         max_score_glob=max_score
                         max_choice=choice
-                        state_chosen=state
-                        action_chosen=max_choice
         except:
             max_choice=user_options[rand.randint(0,len(user_options)-1)]
 
-        # if register_data==True:
-        #     f=open('C:\\Users\\Bubu\\Licenta\\showdown\\battle_bots\\RL_agent\\Config\\training_set.txt','a')
-        #     f.write(state_chosen+','+str(action_chosen)+','+str(max_score_glob)+'\n')
-        #     f.close()
 
         return format_decision(self,max_choice)

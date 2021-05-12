@@ -3,7 +3,7 @@ import math
 
 def train():
     with open('C:\\Users\\Bubu\\Licenta\\showdown\\battle_bots\\RL_agent\\Config\\Q.json','r') as Q_file:
-        Q = json.load(Q_file)
+        Q_train = json.load(Q_file)
     Q_file.close()
     f=open("C:\\Users\\Bubu\\Licenta\\showdown\\battle_bots\\RL_agent\\Config\\training_set.txt",'r')
     past_state=None
@@ -25,19 +25,19 @@ def train():
             reward=float(line[4][0:-1])
         try:
             maxx=-math.inf
-            for i in Q[current_state]:
-                if Q[current_state][i]>maxx:
-                    maxx=Q[current_state][i]
+            for i in Q_train[current_state]:
+                if Q_train[current_state][i]>maxx:
+                    maxx=Q_train[current_state][i]
             if faint==True:
-                for action in Q[current_state]:
+                for action in Q_train[current_state]:
                     if not action.startswith('switch'):
-                        Q[current_state][action] = \
-                            (1-alpha)*Q[current_state][action] + \
-                            alpha * (reward + gamma * maxx- Q[current_state][action])
+                        Q_train[current_state][action] = \
+                            (1-alpha)*Q_train[current_state][action] + \
+                            alpha * (reward + gamma * maxx- Q_train[current_state][action])
             else:
-                Q[current_state][action] =\
-                    (1-alpha)*Q[current_state][action] +\
-                    alpha * (reward + gamma * maxx- Q[current_state][action])
+                Q_train[current_state][action] =\
+                    (1-alpha)*Q_train[current_state][action] +\
+                    alpha * (reward + gamma * maxx- Q_train[current_state][action])
         except Exception as e:
             print(current_state+" "+action)
             print(e)
@@ -50,13 +50,7 @@ def train():
     f.write('')
     f.close()
 
-train()
-#50 matches trained upon minimax agent
-#10 matches trained with epsilon 0.7
-#10 matches trained with epsilon 0.6
-#10 matches trained with epsilon 0.5
-#10 matches trained with epsilon 0.4
-#10 matches trained with epsilon 0.3
-#planning:
-#         -10 games with epsilon 0.7,10 with epsilon 0.6 and so on until 10 with epsilon 0.3
-#
+# train()
+#50/50 matches trained with MCTS 800-400
+#50/50 matches trained with MinMax
+#100/100 matches trained with epsilon=0.8

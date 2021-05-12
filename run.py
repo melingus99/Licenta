@@ -1,9 +1,12 @@
 import asyncio
 from copy import deepcopy
-
+from selenium import webdriver
+import time
 from environs import Env
 
 import constants
+
+
 import config
 from config import init_logging
 import logging
@@ -15,7 +18,8 @@ from showdown.websocket_client import PSWebsocketClient
 from data import all_move_json
 from data import pokedex
 from data.mods.apply_mods import apply_mods
-#from showdown.battle_bots.RL_agent.Config.config import *
+from showdown.battle_bots.RL_agent.Config.config import *
+from showdown.battle_bots.RL_agent.train import train
 
 logger = logging.getLogger(__name__)
 
@@ -63,14 +67,52 @@ def check_dictionaries_are_unmodified(original_pokedex, original_move_json):
     else:
         logger.debug("Pokedex JSON unmodified!")
 
+def login_browser(driver,username,password):
 
-async def showdown():
+
+    while(True):
+        try:
+            login_button=driver.find_element_by_name('login')
+            login_button.click()
+            break
+        except:
+            time.sleep(0.1)
+
+
+    username_driver=driver.find_element_by_name('username')
+    username_driver.send_keys(username)
+
+    div=driver.find_element_by_class_name("ps-popup")
+    login_button=div.find_elements_by_tag_name('button')
+    for button in login_button:
+        if button.text=='Choose name':
+            button.click()
+            break
+    while(True):
+        try:
+            password_driver=driver.find_element_by_name('password')
+            password_driver.send_keys(password)
+            break
+        except:
+            time.sleep(0.1)
+
+    login_button=driver.find_elements_by_tag_name('button')
+    for button in login_button:
+        if button.text=='Log in':
+            button.click()
+            break
+
+async def showdown(fn=None):
     parse_configs()
 
     apply_mods(config.pokemon_mode)
 
     original_pokedex = deepcopy(pokedex)
     original_move_json = deepcopy(all_move_json)
+
+    driver = webdriver.Chrome()
+    driver.get('https://play.pokemonshowdown.com/')
+    login_browser(driver,config.username,config.password)
 
     ps_websocket_client = await PSWebsocketClient.create(config.username, config.password, config.websocket_uri)
     await ps_websocket_client.login()
@@ -98,16 +140,25 @@ async def showdown():
 
         logger.info("W: {}\tL: {}".format(wins, losses))
 
+
         check_dictionaries_are_unmodified(original_pokedex, original_move_json)
 
-        # if register_data==True:
-        #     train()
-        #     print('train completed')
+        if train_in_place==True:
+            train()
+            print('train completed')
 
         battles_run += 1
+        fn(battles_run)
         if battles_run >= config.run_count:
+            driver.close()
             break
 
 
+
 if __name__ == "__main__":
-    asyncio.get_event_loop().run_until_complete(showdown())
+    loop=asyncio.get_event_loop()
+    try:
+        loop.run_until_complete(showdown())
+    finally:
+        loop.run_until_complete(loop.shutdown_asyncgens())
+        loop.close()
