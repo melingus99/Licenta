@@ -111,17 +111,19 @@ class PSWebsocketClient:
         while username is None:
             msg = await self.receive_message()
             split_msg = msg.split('|')
-            if split_msg[1] == 'updatechallenges':
-                try:
-                    challenges = json.loads(split_msg[2])
-                    if challenges['challengesFrom'] is not None:
-                        username, challenge_format = next(iter(challenges['challengesFrom'].items()))
-                        if challenge_format != battle_format:
-                            username = None
-                except ValueError:
-                    username = None
-                except StopIteration:
-                    username = None
+            if len(split_msg)>3 and split_msg[4] == '/challenge gen7ou' and split_msg[5]==battle_format:
+                username=split_msg[2]
+            # if split_msg[1]=='updatechallenges':
+            #     try:
+            #         challenges = json.loads(split_msg[2])
+            #         if challenges['challengesFrom'] is not None
+            #             username, challenge_format = next(iter(challenges['challengesFrom'].items()))
+            #             if challenge_format != battle_format:
+            #                 username = None
+            #     except ValueError:
+            #         username = None
+            #     except StopIteration:
+            #         username = None
 
         message = ["/accept " + username]
         await self.send_message('', message)

@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import QWidget
 import os
 
 
-class Ui_Form(QWidget):
+class UiManageTeams(QWidget):
     def __init__(self,parent,controller):
         super().__init__()
 
@@ -29,6 +29,11 @@ class Ui_Form(QWidget):
         self.btn_save.setGeometry(QtCore.QRect(260, 310, 93, 28))
         self.btn_save.setObjectName("btn_save")
         self.btn_save.clicked.connect(self.save)
+        self.btn_delete = QtWidgets.QPushButton(self)
+        self.btn_delete.setGeometry(QtCore.QRect(160, 310, 93, 28))
+        self.btn_delete.setObjectName("btn_delete")
+        self.btn_delete.clicked.connect(self.delete)
+
         self.label_teams = QtWidgets.QLabel(self)
         self.label_teams.setGeometry(QtCore.QRect(20, 10, 55, 16))
         self.label_teams.setObjectName("label_teams")
@@ -50,6 +55,10 @@ class Ui_Form(QWidget):
         self.listWidget.setGeometry(QtCore.QRect(10, 30, 191, 231))
         self.listWidget.setObjectName("listWidget")
 
+        self.exception=QtWidgets.QMessageBox()
+        self.exception.setWindowTitle("Warning")
+        self.exception.setIcon(QtWidgets.QMessageBox.Critical)
+
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self)
 
@@ -57,9 +66,10 @@ class Ui_Form(QWidget):
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
-        self.setWindowTitle(_translate("Form", "Form"))
+        self.setWindowTitle(_translate("Form", "Manage teams"))
         self.btn_back.setText(_translate("Form", "Back"))
         self.btn_save.setText(_translate("Form", "Save"))
+        self.btn_delete.setText(_translate("Form", "Delete"))
         self.label_teams.setText(_translate("Form", "Teams"))
         self.label_team_name.setText(_translate("Form", "Team name"))
         self.label_pokepaste.setText(_translate("Form", "PokePaste"))
@@ -69,7 +79,7 @@ class Ui_Form(QWidget):
         self.listWidget.clear()
 
         teams=self.controller.read_teams()
-        self.listWidget_teams.addItem(teams)
+        self.listWidget.addItems(teams)
 
         self.lineEdit_team_name.setText("best team 2021")
 
@@ -77,6 +87,17 @@ class Ui_Form(QWidget):
 
         file_name=self.lineEdit_team_name.text()
         text=self.textEdit_pokepaste.toPlainText()
+        try:
+            if file_name=='':
+                raise Exception
+            if text=='':
+                raise Exception
+        except:
+            self.exception.setText("Neither team name nor PokePaste must not be empty")
+            self.exception.exec_()
+            return
+
+
         self.controller.write_file(file_name,text)
         self.populate_lists()
 
@@ -86,11 +107,16 @@ class Ui_Form(QWidget):
         self.parent.back()
         self.close()
 
-def start():
-    # import sys
-    # app2 = QtWidgets.QApplication(sys.argv)
-    form = Ui_Form()
-    form.show()
-    # sys.exit(app2.exec_())
 
-# start()
+    def delete(self):
+        item=self.listWidget.currentItem()
+        try:
+            if item==None:
+                raise Exception
+        except:
+            self.exception.setText("a team must be selected before deleting")
+            self.exception.exec_()
+            return
+        self.controller.delete(item.text())
+        self.listWidget.removeItemWidget(item)
+        self.populate_lists()

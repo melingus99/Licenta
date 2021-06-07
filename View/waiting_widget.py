@@ -17,8 +17,8 @@ import asyncio
 from run import showdown
 
 
-class Waiting_Widget(QWidget):
-    def __init__(self,parent,games):
+class WaitingWidget(QWidget):
+    def __init__(self,parent,games=None):
         super().__init__()
         self.threadpool = QThreadPool()
         self.parent=parent
@@ -54,11 +54,11 @@ class Waiting_Widget(QWidget):
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self)
 
-        self.populate_lists(0)
+
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
-        self.setWindowTitle(_translate("Form", "Form"))
+        self.setWindowTitle(_translate("Form", "Waiting Window"))
         self.btn_stop.setText(_translate("Form", "Back"))
         self.label_played.setText(_translate("Form", "Games played"))
         self.label_to_play.setText(_translate("Form", "Games to play"))
@@ -81,6 +81,9 @@ class Waiting_Widget(QWidget):
         loop = asyncio.get_event_loop()
         self.worker = Worker(showdown,self.populate_lists,loop)
         self.threadpool.start(self.worker)
+
+    def setGames(self,games):
+        self.games_to_play=games
 
 
 

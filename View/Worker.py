@@ -12,7 +12,6 @@ class Worker(QRunnable):
         self.loop=loop
         self.args = args
         self.kwargs = kwargs
-        self.stopCondition=False
 
 
     @pyqtSlot()

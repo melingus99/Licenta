@@ -9,23 +9,23 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from View.View_config import *
 import os
-from View.manage_teams import Ui_Form
-from View.waiting_widget import Waiting_Widget
+from View.manage_teams import UiManageTeams
+from View.waiting_widget import WaitingWidget
 import asyncio
 from asyncqt import QEventLoop
 from Controller.Controller import Controller
 
 
-class Ui_MainWindow(object):
+class UiMainWindow(object):
     def setupUi(self, MainWindow,controller):
 
         self.controller=controller
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(623, 394)
 
-        self.teams_ui=None
+        self.teamsUi=UiManageTeams(self,self.controller)
+        self.waitingUi=WaitingWidget(self)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.btn_start = QtWidgets.QPushButton(self.centralwidget)
@@ -88,13 +88,18 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
+        self.exception=QtWidgets.QMessageBox()
+        self.exception.setWindowTitle("Warning")
+        self.exception.setIcon(QtWidgets.QMessageBox.Critical)
+
+
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         self.populate_lists()
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Menu"))
         self.btn_start.setText(_translate("MainWindow", "Start"))
         self.btn_teams.setText(_translate("MainWindow", "Manage Teams"))
         self.label_username.setText(_translate("MainWindow", "Username"))
@@ -114,7 +119,7 @@ class Ui_MainWindow(object):
         self.lineEdit_password.setText("")
 
         teams=self.controller.read_teams()
-        self.listWidget_teams.addItem(teams)
+        self.listWidget_teams.addItems(teams)
 
         self.listWidget_bot.addItem("Q-learning")
         self.listWidget_bot.addItem("MCTS")
@@ -129,8 +134,8 @@ class Ui_MainWindow(object):
         sys.exit(app.exec_())
 
     def show_manage_teams(self):
-        self.teams_ui=Ui_Form(self,controller)
-        self.teams_ui.show()
+
+        self.teamsUi.show()
         MainWindow.hide()
 
     def back(self):
@@ -138,39 +143,71 @@ class Ui_MainWindow(object):
         self.populate_lists()
 
     def start(self):
-        # team=self.listWidget_teams.currentItem().text()
-        #
-        # bot=self.listWidget_bot.currentItem().text()
-        # if bot=='Minmax':
-        #     bot='MinMax_Classic'
-        # elif bot=='Q-learning':
-        #     bot='RL_agent'
-        #
-        # mode=self.listWidget_mode.currentItem().text()
-        # mode=mode.upper()
-        # mode=mode.replace(' ','_')
-        #
+        try:
+            team=self.listWidget_teams.currentItem().text()
+        except:
+            self.exception.setText("team not selected")
+            x=self.exception.exec_()
+            return
+        try:
+            bot=self.listWidget_bot.currentItem().text()
+        except:
+            self.exception.setText("bot not selected")
+            x=self.exception.exec_()
+            return
+
+        if bot=='Minmax':
+            bot='MinMax_Classic'
+        elif bot=='Q-learning':
+            bot='RL_agent'
+        try:
+            mode=self.listWidget_mode.currentItem().text()
+        except:
+            self.exception.setText("mode not selected")
+            x=self.exception.exec_()
+            return
+        mode=mode.upper()
+        mode=mode.replace(' ','_')
+
         games=self.lineEdit_runs.text()
-        #
-        # username=self.lineEdit_username.text()
-        #
-        # password=self.lineEdit_password.text()
-        #
-        #
-        # text="WEBSOCKET_URI=sim.smogon.com:8000\n"\
-        #         "PS_USERNAME={}\n" \
-        #         "PS_PASSWORD={}\n"\
-        #         "BOT_MODE={}\n"\
-        #         "POKEMON_MODE=gen7ou\n"\
-        #         "RUN_COUNT={}\n"\
-        #         "USER_TO_CHALLENGE=rl_test2\n"\
-        #         "BATTLE_BOT={}\n"\
-        #         "TEAM_NAME=gen7/{}\n".format(username,password,mode,games,bot,team)
-        # self.controller.write_env(text)
-        self.waiting_ui=Waiting_Widget(self,games)
-        self.waiting_ui.show()
+        username=self.lineEdit_username.text()
+        password=self.lineEdit_password.text()
+
+        try:
+            gameint=int(games)
+            if gameint<=0:
+                raise Exception
+        except:
+            self.exception.setText("number of games needs to be a positive natural number")
+            self.exception.exec_()
+            return
+
+        try:
+            if username=='':
+                raise Exception
+            if password=='':
+                raise Exception
+        except:
+            self.exception.setText("username and password must not be empty")
+            self.exception.exec_()
+            return
+
+        text="WEBSOCKET_URI=sim.smogon.com:8000\n"\
+                "PS_USERNAME={}\n" \
+                "PS_PASSWORD={}\n"\
+                "BOT_MODE={}\n"\
+                "POKEMON_MODE=gen7ou\n"\
+                "RUN_COUNT={}\n"\
+                "USER_TO_CHALLENGE=rl_test2\n"\
+                "BATTLE_BOT={}\n"\
+                "TEAM_NAME=gen7/{}\n".format(username,password,mode,games,bot,team)
+        print (bot)
+        self.controller.write_env(text)
+        self.waitingUi.setGames(games)
+        self.waitingUi.populate_lists(0)
+        self.waitingUi.show()
         MainWindow.hide()
-        self.waiting_ui.start_bot()
+        self.waitingUi.start_bot()
 
 
 
@@ -183,7 +220,7 @@ if __name__ == "__main__":
     asyncio.set_event_loop(loop)
     controller=Controller()
     MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
+    ui = UiMainWindow()
     ui.setupUi(MainWindow,controller)
     MainWindow.show()
     sys.exit(app.exec_())

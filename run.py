@@ -150,7 +150,7 @@ async def showdown(fn=None):
         battles_run += 1
         fn(battles_run)
         if battles_run >= config.run_count:
-            driver.close()
+            # driver.close()
             break
 
 
